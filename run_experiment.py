@@ -47,8 +47,8 @@ with Experiment({
     experiment.register_directory("samples")
     experiment.register_directory("distributions")
 
-    flow = NormalizingFlow(dim=2, flow_length=config.flow_length)
-    bound = FreeEnergyBound(density=p_z)
+    flow = NormalizingFlow(dim=2, flow_length=config.flow_length)  #定义一个Normalizing flow
+    bound = FreeEnergyBound(density=p_z) # 损失函数
     optimizer = optim.RMSprop(flow.parameters(), lr=config.initial_lr)
     scheduler = optim.lr_scheduler.ExponentialLR(optimizer, config.lr_decay)
 
@@ -60,12 +60,12 @@ with Experiment({
     def should_plot(iteration):
         return iteration % args.plot_interval == 0
 
-    for iteration in range(1, config.iterations + 1):
+    for iteration in range(1, config.iterations + 1): # 不断迭代
 
         scheduler.step()
 
-        samples = Variable(random_normal_samples(config.batch_size))
-        zk, log_jacobians = flow(samples)
+        samples = Variable(random_normal_samples(config.batch_size)) # 每次迭代从正态分布中采样
+        zk, log_jacobians = flow(samples) #将正态分布样本输入到flow中
 
         optimizer.zero_grad()
         loss = bound(zk, log_jacobians)
